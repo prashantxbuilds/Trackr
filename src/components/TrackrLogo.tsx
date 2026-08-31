@@ -7,16 +7,16 @@ interface TrackrLogoProps {
   className?: string;
 }
 
-export function TrackrLogoIcon({ size = 36, className = "" }: { size?: number; className?: string }) {
+export function TrackrLogoIcon({ size = 40, className = "" }: { size?: number; className?: string }) {
   return (
     <div
       style={{ width: size, height: size }}
-      className={`relative flex items-center justify-center flex-shrink-0 rounded-2xl overflow-hidden shadow-sm bg-[#FDFBF7] dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700/80 ${className}`}
+      className={`relative flex items-center justify-center flex-shrink-0 rounded-2xl overflow-hidden shadow-sm bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700/80 ${className}`}
     >
       <img
         src={logoImg}
         alt="Trackr Logo"
-        className="w-full h-full object-cover select-none pointer-events-none scale-110"
+        className="w-full h-full object-cover select-none pointer-events-none scale-105"
         onError={(e) => {
           // Fallback if image fails to load
           e.currentTarget.src = "/favicon.svg";
@@ -32,10 +32,10 @@ export default function TrackrLogo({
   className = "",
 }: TrackrLogoProps) {
   const pixelSize = {
-    sm: 30,
-    md: 38,
-    lg: 46,
-    xl: 54,
+    sm: 34,
+    md: 42,
+    lg: 50,
+    xl: 58,
   }[size];
 
   return (
