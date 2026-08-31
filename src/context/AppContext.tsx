@@ -177,7 +177,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setTransactions((prev) => {
       const toDelete = prev.find((t) => t.id === id);
       if (toDelete) {
-        setDeletedTransactions((del) => [toDelete, ...del]);
+        setDeletedTransactions((del) =>
+          del.some((d) => d.id === id) ? del : [toDelete, ...del]
+        );
       }
       return prev.filter((t) => t.id !== id);
     });
@@ -188,7 +190,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setDeletedTransactions((prev) => {
       const toRestore = prev.find((t) => t.id === id);
       if (toRestore) {
-        setTransactions((txs) => [toRestore, ...txs]);
+        setTransactions((txs) =>
+          txs.some((t) => t.id === id) ? txs : [toRestore, ...txs]
+        );
       }
       return prev.filter((t) => t.id !== id);
     });
