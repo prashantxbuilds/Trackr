@@ -10,16 +10,18 @@ import {
   X,
   Check,
   Trash2,
+  Trash,
   Plus,
   RotateCcw,
   CheckCircle2,
   Coins,
+  Undo2,
 } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { CategoryIcon } from "../components/IconMap";
 import { ICON_NAMES, PRESET_COLORS } from "../data";
 import { ConfirmDialog } from "../components/ui/ConfirmDialog";
-import { escapeCSV, formatCurrency, getCurrencySymbol, type CurrencyType } from "../utils";
+import { escapeCSV, formatCurrency, formatDateForExport, getCurrencySymbol, type CurrencyType } from "../utils";
 import type { TransactionType } from "../data";
 
 type AddCatForm = { name: string; icon: string; color: string };
@@ -224,13 +226,19 @@ function CategoryManager({ type }: { type: TransactionType }) {
 }
 
 export default function Settings() {
-  const { transactions, darkMode, setDarkMode, currency, setCurrency, resetAllData, user } = useApp();
+  const {
+    transactions, deletedTransactions, darkMode, setDarkMode, currency, setCurrency,
+    resetAllData, user, restoreTransaction, permanentlyDeleteTransaction, emptyTrash,
+    getCategoryById,
+  } = useApp();
   const [notifications, setNotifications] = useState(true);
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [exported, setExported] = useState(false);
 
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [showEmptyTrashConfirm, setShowEmptyTrashConfirm] = useState(false);
+  const [deleteFromBinId, setDeleteFromBinId] = useState<string | null>(null);
 
   const ToggleSwitch = ({ on, onToggle }: { on: boolean; onToggle: () => void }) => (
     <button
@@ -246,31 +254,48 @@ export default function Settings() {
     </button>
   );
 
-  const exportCSV = () => {
+  const doExportCSV = () => {
     const headers = ["ID", "Date", "Type", "Category", "Amount", "Currency", "Note"];
-    const rows = transactions.map((t) => [
-      escapeCSV(t.id),
-      escapeCSV(t.date),
-      escapeCSV(t.type),
-      escapeCSV(t.category),
-      escapeCSV(t.amount),
-      escapeCSV(currency),
-      escapeCSV(t.note),
-    ]);
+    const rows = transactions.map((t) => {
+      const cat = getCategoryById(t.category);
+      return [
+        escapeCSV(t.id),
+        escapeCSV(formatDateForExport(t.date)),
+        escapeCSV(t.type),
+        escapeCSV(cat?.name || t.category),
+        escapeCSV(t.amount),
+        escapeCSV(currency),
+        escapeCSV(t.note),
+      ];
+    });
 
-    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const csvContent = "\uFEFF" + [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `transactions_export_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `Trackr_Export_${formatDateForExport(new Date().toISOString().slice(0, 10))}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const exportCSV = () => {
+    doExportCSV();
     setExported(true);
     setTimeout(() => setExported(false), 3000);
   };
 
-  const handleResetData = () => {
+  const handleResetWithExport = () => {
+    setShowResetConfirm(false);
+    setIsResetting(true);
+    doExportCSV();
+    setTimeout(() => {
+      resetAllData();
+      setIsResetting(false);
+    }, 2500);
+  };
+
+  const handleResetWithoutExport = () => {
     setShowResetConfirm(false);
     setIsResetting(true);
     setTimeout(() => {
@@ -508,18 +533,180 @@ export default function Settings() {
             </div>
           </div>
         </div>
+
+        {/* Recycle Bin */}
+        <div className="space-y-2">
+          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 px-1">
+            Recycle Bin
+          </p>
+          <div className="rounded-3xl bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 shadow-sm">
+            <div className="p-4 sm:p-5">
+              <button
+                onClick={() => setOpenSection(openSection === "trash" ? null : "trash")}
+                className="flex items-center justify-between w-full text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
+                    <Trash size={18} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900 dark:text-white">
+                      Deleted Transactions
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      {deletedTransactions.length} item{deletedTransactions.length !== 1 ? "s" : ""} in trash
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight
+                  size={18}
+                  className={`text-gray-400 transition-transform ${
+                    openSection === "trash" ? "rotate-90" : ""
+                  }`}
+                />
+              </button>
+
+              {openSection === "trash" && (
+                <div className="space-y-3 pt-4">
+                  {deletedTransactions.length > 0 ? (
+                    <>
+                      <div className="space-y-2 max-h-80 overflow-y-auto">
+                        {deletedTransactions.map((t) => {
+                          const cat = getCategoryById(t.category);
+                          return (
+                            <div
+                              key={t.id}
+                              className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800 rounded-2xl"
+                            >
+                              <div
+                                className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                                style={{
+                                  backgroundColor: (cat?.color || "#6B7280") + "20",
+                                  color: cat?.color || "#6B7280",
+                                }}
+                              >
+                                <CategoryIcon iconName={cat?.icon || "MoreHorizontal"} size={16} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
+                                  {cat?.name || t.category}
+                                </p>
+                                <p className="text-xs text-gray-400">
+                                  {formatDateForExport(t.date)} · {t.type === "expense" ? "-" : "+"}{formatCurrency(t.amount, currency)}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-1.5 flex-shrink-0">
+                                <button
+                                  onClick={() => restoreTransaction(t.id)}
+                                  title="Restore"
+                                  className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer"
+                                >
+                                  <Undo2 size={15} />
+                                </button>
+                                <button
+                                  onClick={() => setDeleteFromBinId(t.id)}
+                                  title="Delete Permanently"
+                                  className="p-1.5 rounded-lg text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                                >
+                                  <Trash2 size={15} />
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <button
+                        onClick={() => setShowEmptyTrashConfirm(true)}
+                        className="flex items-center justify-center gap-2 w-full p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-950/50 transition-colors text-xs font-bold border border-rose-200 dark:border-rose-900/60 cursor-pointer"
+                      >
+                        <Trash2 size={15} />
+                        <span>Empty Trash</span>
+                      </button>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-8 text-gray-400">
+                      <Trash size={28} className="mb-2 opacity-40" />
+                      <p className="text-xs font-medium">Recycle bin is empty</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* In-App Confirmation Dialog */}
+      {/* Reset Data Dialog - with export option */}
+      {showResetConfirm && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in"
+          onClick={() => setShowResetConfirm(false)}
+        >
+          <div
+            className="w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-800 p-6 space-y-4 animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-500">
+                <RotateCcw size={20} />
+              </div>
+              <h3 className="text-base font-bold text-gray-900 dark:text-white">Reset All Data</h3>
+            </div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              All transactions, categories, and settings will be cleared. Would you like to export your data to Excel before resetting?
+            </p>
+            <div className="space-y-2 pt-1">
+              <button
+                onClick={handleResetWithExport}
+                className="w-full py-3 rounded-2xl text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-500 transition-all shadow-sm cursor-pointer"
+              >
+                Export & Reset
+              </button>
+              <button
+                onClick={handleResetWithoutExport}
+                className="w-full py-3 rounded-2xl text-sm font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-950/60 transition-all border border-rose-200 dark:border-rose-900/60 cursor-pointer"
+              >
+                Reset Without Export
+              </button>
+              <button
+                onClick={() => setShowResetConfirm(false)}
+                className="w-full py-3 rounded-2xl text-sm font-semibold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Empty Trash Confirmation */}
       <ConfirmDialog
-        isOpen={showResetConfirm}
-        title="Reset Data"
-        message="All transactions, categories and settings will be cleared. This cannot be undone."
-        confirmText="Reset Everything"
+        isOpen={showEmptyTrashConfirm}
+        title="Empty Recycle Bin"
+        message="All deleted transactions will be permanently removed. This cannot be undone."
+        confirmText="Empty Trash"
         cancelText="Cancel"
         isDestructive={true}
-        onConfirm={handleResetData}
-        onCancel={() => setShowResetConfirm(false)}
+        onConfirm={() => {
+          emptyTrash();
+          setShowEmptyTrashConfirm(false);
+        }}
+        onCancel={() => setShowEmptyTrashConfirm(false)}
+      />
+
+      {/* Permanent Delete Confirmation */}
+      <ConfirmDialog
+        isOpen={!!deleteFromBinId}
+        title="Delete Permanently"
+        message="This transaction will be permanently deleted and cannot be recovered."
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDestructive={true}
+        onConfirm={() => {
+          if (deleteFromBinId) permanentlyDeleteTransaction(deleteFromBinId);
+          setDeleteFromBinId(null);
+        }}
+        onCancel={() => setDeleteFromBinId(null)}
       />
     </div>
   );

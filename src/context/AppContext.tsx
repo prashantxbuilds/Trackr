@@ -11,6 +11,7 @@ import { generateId, generateTransactionId, type CurrencyType } from "../utils";
 
 const STORAGE_KEYS = {
   TRANSACTIONS: "expense_tracker_transactions_v4",
+  DELETED_TRANSACTIONS: "expense_tracker_deleted_transactions_v4",
   EXPENSE_CATS: "expense_tracker_expense_cats_v4",
   INCOME_CATS: "expense_tracker_income_cats_v4",
   DARK_MODE: "expense_tracker_dark_mode_v4",
@@ -25,6 +26,7 @@ export type UserProfile = {
 
 type AppState = {
   transactions: Transaction[];
+  deletedTransactions: Transaction[];
   expenseCategories: Category[];
   incomeCategories: Category[];
   darkMode: boolean;
@@ -35,6 +37,9 @@ type AppState = {
 type AppContextValue = AppState & {
   addTransaction: (t: Omit<Transaction, "id">) => void;
   deleteTransaction: (id: string) => void;
+  restoreTransaction: (id: string) => void;
+  permanentlyDeleteTransaction: (id: string) => void;
+  emptyTrash: () => void;
   addCategory: (cat: Omit<Category, "id">, type: TransactionType) => void;
   deleteCategory: (id: string, type: TransactionType) => void;
   updateCategoryBudget: (id: string, budget: number) => void;
@@ -66,6 +71,9 @@ const DEFAULT_USER: UserProfile = {
 export function AppProvider({ children }: { children: ReactNode }) {
   const [transactions, setTransactions] = useState<Transaction[]>(() =>
     loadFromStorage(STORAGE_KEYS.TRANSACTIONS, INITIAL_TRANSACTIONS)
+  );
+  const [deletedTransactions, setDeletedTransactions] = useState<Transaction[]>(() =>
+    loadFromStorage(STORAGE_KEYS.DELETED_TRANSACTIONS, [])
   );
   const [expenseCategories, setExpenseCategories] = useState<Category[]>(() =>
     loadFromStorage(STORAGE_KEYS.EXPENSE_CATS, EXPENSE_CATEGORIES)
@@ -137,6 +145,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [transactions]);
 
+  // Sync deleted transactions (recycle bin) to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.DELETED_TRANSACTIONS, JSON.stringify(deletedTransactions));
+    } catch {
+      // ignore
+    }
+  }, [deletedTransactions]);
+
   // Sync categories to localStorage
   useEffect(() => {
     try {
@@ -155,8 +172,36 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // Move transaction to recycle bin instead of permanently deleting
   const deleteTransaction = useCallback((id: string) => {
-    setTransactions((prev) => prev.filter((t) => t.id !== id));
+    setTransactions((prev) => {
+      const toDelete = prev.find((t) => t.id === id);
+      if (toDelete) {
+        setDeletedTransactions((del) => [toDelete, ...del]);
+      }
+      return prev.filter((t) => t.id !== id);
+    });
+  }, []);
+
+  // Restore transaction from recycle bin
+  const restoreTransaction = useCallback((id: string) => {
+    setDeletedTransactions((prev) => {
+      const toRestore = prev.find((t) => t.id === id);
+      if (toRestore) {
+        setTransactions((txs) => [toRestore, ...txs]);
+      }
+      return prev.filter((t) => t.id !== id);
+    });
+  }, []);
+
+  // Permanently delete from recycle bin
+  const permanentlyDeleteTransaction = useCallback((id: string) => {
+    setDeletedTransactions((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  // Empty entire recycle bin
+  const emptyTrash = useCallback(() => {
+    setDeletedTransactions([]);
   }, []);
 
   const addCategory = useCallback((cat: Omit<Category, "id">, type: TransactionType) => {
@@ -204,11 +249,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const resetAllData = useCallback(() => {
     setTransactions([]);
+    setDeletedTransactions([]);
     setExpenseCategories(EXPENSE_CATEGORIES);
     setIncomeCategories(INCOME_CATEGORIES);
     setCurrencyState("INR");
     setUserState(DEFAULT_USER);
     localStorage.removeItem(STORAGE_KEYS.TRANSACTIONS);
+    localStorage.removeItem(STORAGE_KEYS.DELETED_TRANSACTIONS);
     localStorage.removeItem(STORAGE_KEYS.EXPENSE_CATS);
     localStorage.removeItem(STORAGE_KEYS.INCOME_CATS);
     localStorage.removeItem(STORAGE_KEYS.CURRENCY);
@@ -226,6 +273,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     <AppContext.Provider
       value={{
         transactions,
+        deletedTransactions,
         expenseCategories,
         incomeCategories,
         darkMode,
@@ -233,6 +281,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         user,
         addTransaction,
         deleteTransaction,
+        restoreTransaction,
+        permanentlyDeleteTransaction,
+        emptyTrash,
         addCategory,
         deleteCategory,
         updateCategoryBudget,

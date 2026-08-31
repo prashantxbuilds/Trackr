@@ -23,16 +23,20 @@ const BAR_COLORS = {
   expense: "#2563EB", // Vibrant blue
 };
 
-// Monochromatic Blue palette matching reference Pie Chart
-const PIE_BLUES = [
-  "#80BFFF", // Light sky blue
+// Vibrant distinct color palette for Pie Chart categories
+const PIE_COLORS = [
+  "#6366F1", // Indigo
+  "#F43F5E", // Rose
+  "#10B981", // Emerald
+  "#F59E0B", // Amber
+  "#8B5CF6", // Violet
+  "#06B6D4", // Cyan
+  "#EC4899", // Pink
+  "#14B8A6", // Teal
+  "#EF4444", // Red
   "#3B82F6", // Blue
-  "#2563EB", // Vibrant royal blue
-  "#1D4ED8", // Dark royal blue
-  "#1E40AF", // Deep navy blue
-  "#172554", // Midnight blue
-  "#60A5FA", // Sky blue
-  "#93C5FD", // Soft light blue
+  "#84CC16", // Lime
+  "#F97316", // Orange
 ];
 
 export default function Stats() {
@@ -53,7 +57,7 @@ export default function Stats() {
     return Object.entries(map)
       .map(([id, value], index) => {
         const cat = getCategoryById(id);
-        const color = PIE_BLUES[index % PIE_BLUES.length];
+        const color = PIE_COLORS[index % PIE_COLORS.length];
         return {
           id,
           name: cat?.name || id,
