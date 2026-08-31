@@ -98,9 +98,6 @@ export default function Landing({ onGetStarted }: { onGetStarted: () => void }) 
                 <span>Get Started</span>
                 <ArrowRight size={18} />
               </button>
-              <span className="text-xs text-gray-400">
-                No account needed · Works offline
-              </span>
             </div>
           </div>
 
@@ -194,25 +191,6 @@ export default function Landing({ onGetStarted }: { onGetStarted: () => void }) 
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="max-w-6xl mx-auto px-5 sm:px-8 py-12 sm:py-16">
-        <div className="rounded-3xl bg-gradient-to-br from-gray-900 to-gray-800 dark:from-indigo-950 dark:to-gray-900 p-8 sm:p-12 text-center border border-gray-700/50 dark:border-indigo-800/40">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-3">
-            Ready to Take Control?
-          </h2>
-          <p className="text-sm text-gray-400 max-w-md mx-auto mb-6">
-            Start tracking your finances today. It takes less than a second to begin.
-          </p>
-          <button
-            onClick={onGetStarted}
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-white dark:bg-indigo-600 text-gray-900 dark:text-white text-sm font-bold hover:bg-gray-100 dark:hover:bg-indigo-500 transition-all shadow-lg cursor-pointer active:scale-95"
-          >
-            <span>Get Started — It&apos;s Free</span>
-            <ArrowRight size={18} />
-          </button>
-        </div>
-      </section>
-
       {/* Footer */}
       <footer className="max-w-6xl mx-auto px-5 sm:px-8 py-8 border-t border-gray-200/60 dark:border-gray-800/60">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-400">
@@ -220,7 +198,18 @@ export default function Landing({ onGetStarted }: { onGetStarted: () => void }) 
             <TrackrLogoIcon size={22} />
             <span className="font-semibold">Trackr</span>
           </div>
-          <p>Built with ❤️ · Open Source · Your data never leaves your device</p>
+          <p>
+            Built with ❤️ ·{" "}
+            <a
+              href="https://github.com/prashantxbuilds"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+            >
+              prashantxbuilds
+            </a>
+            {" "}· Your data never leaves your device
+          </p>
         </div>
       </footer>
     </div>
