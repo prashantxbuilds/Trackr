@@ -1,4 +1,5 @@
 import React from "react";
+import logoImg from "../assets/logo.png";
 
 interface TrackrLogoProps {
   size?: "sm" | "md" | "lg" | "xl";
@@ -13,9 +14,13 @@ export function TrackrLogoIcon({ size = 36, className = "" }: { size?: number; c
       className={`relative flex items-center justify-center flex-shrink-0 rounded-2xl overflow-hidden shadow-sm bg-[#FDFBF7] dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700/80 ${className}`}
     >
       <img
-        src="/logo.png"
+        src={logoImg}
         alt="Trackr Logo"
         className="w-full h-full object-cover select-none pointer-events-none scale-110"
+        onError={(e) => {
+          // Fallback if image fails to load
+          e.currentTarget.src = "/favicon.svg";
+        }}
       />
     </div>
   );
