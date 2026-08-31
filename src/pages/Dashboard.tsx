@@ -15,12 +15,14 @@ import { useApp } from "../context/AppContext";
 import { CategoryIcon } from "../components/IconMap";
 import { formatCurrency, formatDate, currentMonth, getCurrentMonthName } from "../utils";
 import AddTransactionModal from "../components/AddTransactionModal";
-import type { TransactionType } from "../data";
+import TransactionDetailModal from "../components/TransactionDetailModal";
+import type { Transaction, TransactionType } from "../data";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { transactions, getCategoryById, deleteTransaction, currency } = useApp();
   const [modalType, setModalType] = useState<TransactionType | null>(null);
+  const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
   const month = currentMonth();
   const monthName = getCurrentMonthName();
 
@@ -252,10 +254,11 @@ export default function Dashboard() {
               return (
                 <div
                   key={tx.id}
-                  className="flex items-center gap-3.5 p-3.5 bg-gray-50/80 dark:bg-gray-800/50 hover:bg-gray-100/80 dark:hover:bg-gray-800 rounded-2xl transition-colors group"
+                  onClick={() => setSelectedTx(tx)}
+                  className="flex items-center gap-3.5 p-3.5 bg-gray-50/80 dark:bg-gray-800/50 hover:bg-indigo-50/50 dark:hover:bg-gray-800/90 border border-transparent hover:border-indigo-100 dark:hover:border-gray-700 rounded-2xl transition-all cursor-pointer group select-none active:scale-[0.99]"
                 >
                   <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                    className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm"
                     style={{
                       backgroundColor: isIncome ? "#10B98120" : (cat?.color || "#9CA3AF") + "20",
                       color: isIncome ? "#10B981" : cat?.color,
@@ -265,7 +268,7 @@ export default function Dashboard() {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                       {tx.note || cat?.name || "Transaction"}
                     </p>
                     <p className="text-xs text-gray-400 dark:text-gray-400 truncate">
@@ -285,7 +288,10 @@ export default function Dashboard() {
                       {formatCurrency(tx.amount, currency)}
                     </p>
                     <button
-                      onClick={() => deleteTransaction(tx.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteTransaction(tx.id);
+                      }}
                       title="Delete transaction"
                       className="opacity-0 group-hover:opacity-100 p-1.5 text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-all cursor-pointer"
                     >
@@ -309,6 +315,13 @@ export default function Dashboard() {
         <AddTransactionModal
           defaultType={modalType}
           onClose={() => setModalType(null)}
+        />
+      )}
+
+      {selectedTx && (
+        <TransactionDetailModal
+          transaction={selectedTx}
+          onClose={() => setSelectedTx(null)}
         />
       )}
     </div>

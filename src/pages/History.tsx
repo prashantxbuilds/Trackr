@@ -4,6 +4,8 @@ import { useApp } from "../context/AppContext";
 import { CategoryIcon } from "../components/IconMap";
 import { formatCurrency, formatDate, groupByDate } from "../utils";
 import AddTransactionModal from "../components/AddTransactionModal";
+import TransactionDetailModal from "../components/TransactionDetailModal";
+import type { Transaction } from "../data";
 
 export default function History() {
   const {
@@ -15,6 +17,7 @@ export default function History() {
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState<"all" | "income" | "expense">("all");
   const [showAdd, setShowAdd] = useState(false);
+  const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
 
   const filtered = useMemo(() => {
     return transactions.filter((t) => {
@@ -162,7 +165,8 @@ export default function History() {
                   return (
                     <div
                       key={tx.id}
-                      className="flex items-center gap-3.5 p-3 rounded-2xl bg-gray-50/80 dark:bg-gray-800/50 hover:bg-gray-100/80 dark:hover:bg-gray-800 transition-colors group"
+                      onClick={() => setSelectedTx(tx)}
+                      className="flex items-center gap-3.5 p-3 rounded-2xl bg-gray-50/80 dark:bg-gray-800/50 hover:bg-indigo-50/50 dark:hover:bg-gray-800/90 border border-transparent hover:border-indigo-100 dark:hover:border-gray-700 transition-all cursor-pointer group select-none active:scale-[0.99]"
                     >
                       <div
                         className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-inner"
@@ -177,7 +181,7 @@ export default function History() {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                           {tx.note || cat?.name || "Transaction"}
                         </p>
                         <p className="text-xs text-gray-400 truncate">
@@ -198,7 +202,10 @@ export default function History() {
                         </p>
 
                         <button
-                          onClick={() => deleteTransaction(tx.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteTransaction(tx.id);
+                          }}
                           title="Delete record"
                           className="p-1.5 text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-all cursor-pointer"
                         >
@@ -227,6 +234,13 @@ export default function History() {
       </div>
 
       {showAdd && <AddTransactionModal onClose={() => setShowAdd(false)} />}
+
+      {selectedTx && (
+        <TransactionDetailModal
+          transaction={selectedTx}
+          onClose={() => setSelectedTx(null)}
+        />
+      )}
     </div>
   );
 }
