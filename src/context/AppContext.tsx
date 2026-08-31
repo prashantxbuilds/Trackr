@@ -59,8 +59,8 @@ function loadFromStorage<T>(key: string, fallback: T): T {
 }
 
 const DEFAULT_USER: UserProfile = {
-  name: "Guest",
-  email: "guest@trackr.app",
+  name: "User",
+  email: "user@trackr.app",
 };
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -76,9 +76,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [currency, setCurrencyState] = useState<CurrencyType>(() =>
     loadFromStorage<CurrencyType>(STORAGE_KEYS.CURRENCY, "INR")
   );
-  const [user, setUserState] = useState<UserProfile | null>(() =>
-    loadFromStorage<UserProfile | null>(STORAGE_KEYS.USER, DEFAULT_USER)
-  );
+  const [user, setUserState] = useState<UserProfile | null>(() => {
+    const saved = loadFromStorage<UserProfile | null>(STORAGE_KEYS.USER, DEFAULT_USER);
+    if (!saved || saved.name === "Guest" || saved.email === "guest@trackr.app") {
+      return DEFAULT_USER;
+    }
+    return saved;
+  });
   const [darkMode, setDarkModeState] = useState<boolean>(() => {
     const saved = loadFromStorage<boolean | null>(STORAGE_KEYS.DARK_MODE, null);
     if (saved !== null) return saved;

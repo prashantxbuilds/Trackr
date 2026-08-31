@@ -14,7 +14,6 @@ import {
   RotateCcw,
   CheckCircle2,
   Coins,
-  LogOut,
 } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { CategoryIcon } from "../components/IconMap";
@@ -225,12 +224,11 @@ function CategoryManager({ type }: { type: TransactionType }) {
 }
 
 export default function Settings() {
-  const { transactions, darkMode, setDarkMode, currency, setCurrency, resetAllData, user, logout } = useApp();
+  const { transactions, darkMode, setDarkMode, currency, setCurrency, resetAllData, user } = useApp();
   const [notifications, setNotifications] = useState(true);
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [exported, setExported] = useState(false);
 
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
 
@@ -281,11 +279,6 @@ export default function Settings() {
     }, 2500);
   };
 
-  const handleLogout = () => {
-    logout();
-    setShowLogoutConfirm(false);
-  };
-
   return (
     <div className="flex-1 overflow-y-auto bg-gray-50/50 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 transition-colors">
       <div className="max-w-5xl mx-auto space-y-6">
@@ -306,10 +299,10 @@ export default function Settings() {
           </div>
           <div className="min-w-0">
             <p className="text-base font-bold text-gray-900 dark:text-white truncate">
-              {user ? user.name : "Guest Account"}
+              {user ? user.name : "User"}
             </p>
             <p className="text-xs text-gray-400 truncate">
-              {user ? user.email : "Local Workspace"}
+              {user ? user.email : "user@trackr.app"}
             </p>
           </div>
         </div>
@@ -513,44 +506,11 @@ export default function Settings() {
                 {isResetting ? "Resetting..." : "Reset Data"}
               </button>
             </div>
-
-            {user && (
-              <div className="flex items-center justify-between p-4 sm:p-5">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400">
-                    <LogOut size={18} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                      Log Out of Account
-                    </p>
-                    <p className="text-xs text-gray-400">{user.email}</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowLogoutConfirm(true)}
-                  className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
-                >
-                  Log Out
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </div>
 
-      {/* In-App Confirmation Dialogs */}
-      <ConfirmDialog
-        isOpen={showLogoutConfirm}
-        title="Log Out of Account"
-        message={`Are you sure you want to log out of ${user?.email || "your account"}?`}
-        confirmText="Yes, Log Out"
-        cancelText="Cancel"
-        isDestructive={true}
-        onConfirm={handleLogout}
-        onCancel={() => setShowLogoutConfirm(false)}
-      />
-
+      {/* In-App Confirmation Dialog */}
       <ConfirmDialog
         isOpen={showResetConfirm}
         title="Reset Data"
