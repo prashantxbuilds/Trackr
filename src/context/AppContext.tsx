@@ -7,7 +7,7 @@ import {
   type Category,
   type TransactionType,
 } from "../data";
-import { generateId, type CurrencyType } from "../utils";
+import { generateId, generateTransactionId, type CurrencyType } from "../utils";
 
 const STORAGE_KEYS = {
   TRANSACTIONS: "expense_tracker_transactions_v4",
@@ -148,8 +148,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [expenseCategories, incomeCategories]);
 
   const addTransaction = useCallback((t: Omit<Transaction, "id">) => {
-    const newTx: Transaction = { ...t, id: generateId("tx") };
-    setTransactions((prev) => [newTx, ...prev]);
+    setTransactions((prev) => {
+      const newId = generateTransactionId(t.date, prev);
+      const newTx: Transaction = { ...t, id: newId };
+      return [newTx, ...prev];
+    });
   }, []);
 
   const deleteTransaction = useCallback((id: string) => {

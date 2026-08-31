@@ -88,8 +88,35 @@ export function getBarColor(pct: number): string {
   return "#10B981";
 }
 
-export function generateId(): string {
-  return Math.random().toString(36).slice(2, 9) + Date.now().toString(36);
+export function generateId(prefix: string = ""): string {
+  return (prefix ? `${prefix}_` : "") + Math.random().toString(36).slice(2, 9) + Date.now().toString(36);
+}
+
+export function generateTransactionId(
+  dateStr: string,
+  existingTransactions: { date: string; id?: string }[] = []
+): string {
+  const parts = (dateStr || new Date().toISOString().slice(0, 10)).split("-");
+  const yy = parts[0] ? parts[0].slice(-2) : String(new Date().getFullYear()).slice(-2);
+  const mm = parts[1] || String(new Date().getMonth() + 1).padStart(2, "0");
+  const dd = parts[2] || String(new Date().getDate()).padStart(2, "0");
+  const dayPrefix = `T${yy}${mm}${dd}`;
+
+  // Find highest existing sequence for this day if any
+  let maxSeq = 0;
+  existingTransactions.forEach((t) => {
+    if (t.id && t.id.startsWith(dayPrefix)) {
+      const numPart = parseInt(t.id.slice(dayPrefix.length), 10);
+      if (!isNaN(numPart) && numPart > maxSeq) {
+        maxSeq = numPart;
+      }
+    } else if (t.date === dateStr) {
+      maxSeq++;
+    }
+  });
+
+  const nextSeq = String(maxSeq + 1).padStart(2, "0");
+  return `${dayPrefix}${nextSeq}`;
 }
 
 export function escapeCSV(val: string | number): string {
