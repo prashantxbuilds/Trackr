@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  X,
   CheckCircle2,
   Copy,
   Check,
@@ -92,15 +91,6 @@ export default function TransactionDetailModal({ transaction, onClose }: Props) 
         >
           {/* Top Header with Prominent Cross Close Button */}
           <div className="relative pt-6 pb-5 px-6 text-center border-b border-gray-100 dark:border-gray-800 bg-gradient-to-b from-gray-50/90 dark:from-gray-800/40 to-transparent">
-            {/* Prominent Cross Button */}
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-full transition-all cursor-pointer shadow-sm active:scale-95"
-              aria-label="Close"
-              title="Close"
-            >
-              <X size={18} strokeWidth={2.5} />
-            </button>
 
             {/* Status Icon */}
             <div className="mx-auto mb-3 relative flex items-center justify-center">
