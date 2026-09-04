@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
-import { Edit3, Check, X, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Edit3, Check, X, AlertTriangle, CheckCircle2, TrendingDown } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { CategoryIcon } from "../components/IconMap";
-import { formatCurrency, getCurrencySymbol, getBarColor, currentMonth, getCurrentMonthName } from "../utils";
+import { formatCurrency, getCurrencySymbol, currentMonth, getCurrentMonthName } from "../utils";
 
 export default function Budget() {
   const { transactions, expenseCategories, updateCategoryBudget, currency } = useApp();
@@ -11,6 +11,16 @@ export default function Budget() {
   const [editValue, setEditValue] = useState("");
   const month = currentMonth();
   const monthName = getCurrentMonthName();
+
+  // Calculate days elapsed and days in month for avg spend
+  const { daysElapsed, daysInMonth } = useMemo(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const mon = now.getMonth();
+    const days = new Date(year, mon + 1, 0).getDate(); // total days in month
+    const elapsed = now.getDate(); // days elapsed so far (including today)
+    return { daysElapsed: elapsed, daysInMonth: days };
+  }, []);
 
   const catData = useMemo(() => {
     const map: Record<string, number> = {};
@@ -25,9 +35,13 @@ export default function Budget() {
       const pct = cat.budget > 0 ? (spent / cat.budget) * 100 : 0;
       const isOver = cat.budget > 0 && spent > cat.budget;
       const remaining = cat.budget - spent;
-      return { ...cat, spent, pct, isOver, remaining };
+      // Daily avg: total spent this month / days elapsed so far
+      const dailyAvg = daysElapsed > 0 ? spent / daysElapsed : 0;
+      // Projected spend: dailyAvg * total days in month
+      const projected = dailyAvg * daysInMonth;
+      return { ...cat, spent, pct, isOver, remaining, dailyAvg, projected };
     });
-  }, [transactions, expenseCategories, month]);
+  }, [transactions, expenseCategories, month, daysElapsed, daysInMonth]);
 
   const totalBudget = useMemo(
     () => expenseCategories.reduce((s, c) => s + c.budget, 0),
@@ -37,6 +51,8 @@ export default function Budget() {
     () => catData.reduce((s, c) => s + c.spent, 0),
     [catData]
   );
+  const totalDailyAvg = daysElapsed > 0 ? totalSpent / daysElapsed : 0;
+
   const overallPct = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
   const isOverallOver = totalBudget > 0 && totalSpent > totalBudget;
   const overBudgetCategories = catData.filter((c) => c.isOver);
@@ -55,6 +71,9 @@ export default function Budget() {
   };
 
   const cancelEdit = () => setEditingId(null);
+
+  // Overall bar: segmented by category color
+  const categoriesWithBudget = catData.filter((c) => c.budget > 0 && c.spent > 0);
 
   return (
     <div className="flex-1 overflow-y-auto bg-gray-50/50 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 transition-colors">
@@ -89,6 +108,17 @@ export default function Budget() {
                   of {formatCurrency(totalBudget, currency)}
                 </span>
               </div>
+              {/* Daily avg for total */}
+              <div className="flex items-center gap-1.5 mt-1.5">
+                <TrendingDown size={13} className="text-gray-400" />
+                <span className="text-xs text-gray-400">
+                  Daily avg:{" "}
+                  <span className="font-bold text-gray-600 dark:text-gray-300">
+                    {formatCurrency(totalDailyAvg, currency)}/day
+                  </span>
+                  <span className="text-gray-400"> · Day {daysElapsed} of {daysInMonth}</span>
+                </span>
+              </div>
             </div>
 
             <div className="flex items-center gap-2">
@@ -106,22 +136,55 @@ export default function Budget() {
             </div>
           </div>
 
-          {/* Progress Bar */}
+          {/* Overall progress bar: segmented by category color */}
           <div className="space-y-1.5">
-            <div className="h-3.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden p-0.5">
-              <div
-                className="h-full rounded-full transition-all duration-500"
-                style={{
-                  width: `${Math.min(overallPct, 100)}%`,
-                  backgroundColor: getBarColor(overallPct),
-                }}
-              />
-            </div>
+            {categoriesWithBudget.length > 0 ? (
+              <div className="h-3.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden p-0.5 flex">
+                {categoriesWithBudget.map((cat, i) => {
+                  const segPct = totalBudget > 0 ? Math.min((cat.spent / totalBudget) * 100, 100) : 0;
+                  return (
+                    <div
+                      key={cat.id}
+                      className="h-full transition-all duration-500"
+                      style={{
+                        width: `${segPct}%`,
+                        backgroundColor: cat.color,
+                        borderRadius: i === 0 ? "9999px 0 0 9999px" : i === categoriesWithBudget.length - 1 ? "0 9999px 9999px 0" : "0",
+                        marginLeft: i === 0 ? 0 : "1px",
+                      }}
+                      title={`${cat.name}: ${formatCurrency(cat.spent, currency)}`}
+                    />
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="h-3.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden p-0.5">
+                <div
+                  className="h-full rounded-full transition-all duration-500 bg-indigo-500"
+                  style={{ width: `${Math.min(overallPct, 100)}%` }}
+                />
+              </div>
+            )}
             <div className="flex justify-between text-xs font-semibold text-gray-400">
               <span>{Math.round(overallPct)}% consumed</span>
               <span>{totalBudget > 0 ? `${Math.max(0, Math.round(100 - overallPct))}% left` : "No limit"}</span>
             </div>
           </div>
+
+          {/* Category color legend for overall bar */}
+          {categoriesWithBudget.length > 0 && (
+            <div className="flex flex-wrap gap-3">
+              {categoriesWithBudget.map((cat) => (
+                <div key={cat.id} className="flex items-center gap-1.5">
+                  <span
+                    className="w-2.5 h-2.5 rounded-sm flex-shrink-0"
+                    style={{ backgroundColor: cat.color }}
+                  />
+                  <span className="text-[11px] text-gray-500 dark:text-gray-400">{cat.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Warning Alert if any category is over budget */}
@@ -146,8 +209,9 @@ export default function Budget() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {catData.map((cat) => {
-              const barColor = getBarColor(cat.pct);
               const isEditing = editingId === cat.id;
+              // Bar color = category's own color, fades to rose if over budget
+              const barColor = cat.isOver ? "#F43F5E" : cat.color;
               return (
                 <div
                   key={cat.id}
@@ -217,7 +281,7 @@ export default function Budget() {
                     )}
                   </div>
 
-                  {/* Progress Bar */}
+                  {/* Progress Bar — category's own color */}
                   <div className="h-2.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden mb-2">
                     <div
                       className="h-full rounded-full transition-all duration-500"
@@ -239,6 +303,24 @@ export default function Budget() {
                         : "Set monthly limit"}
                     </button>
                   </div>
+
+                  {/* Daily avg spend for this category */}
+                  {cat.spent > 0 && (
+                    <div className="flex items-center gap-1 mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+                      <TrendingDown size={11} className="text-gray-400 flex-shrink-0" />
+                      <span className="text-[11px] text-gray-400">
+                        Daily avg:{" "}
+                        <span className="font-semibold text-gray-600 dark:text-gray-300">
+                          {formatCurrency(cat.dailyAvg, currency)}/day
+                        </span>
+                        {cat.budget > 0 && (
+                          <span className="text-gray-400">
+                            {" "}· Projected: {formatCurrency(cat.projected, currency)}
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  )}
                 </div>
               );
             })}
