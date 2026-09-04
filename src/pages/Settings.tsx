@@ -6,7 +6,6 @@ import {
   Bell,
   Download,
   Tag,
-  User,
   X,
   Check,
   Trash2,
@@ -19,6 +18,7 @@ import {
 } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { CategoryIcon } from "../components/IconMap";
+import CartoonAvatar from "../components/CartoonAvatar";
 import { ICON_NAMES, PRESET_COLORS } from "../data";
 import { ConfirmDialog } from "../components/ui/ConfirmDialog";
 import { escapeCSV, formatCurrency, formatDateForExport, getCurrencySymbol, type CurrencyType } from "../utils";
@@ -319,9 +319,7 @@ export default function Settings() {
 
         {/* User Profile Card */}
         <div className="flex items-center gap-4 p-5 sm:p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 shadow-sm">
-          <div className="w-14 h-14 rounded-2xl bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0 font-bold text-xl">
-            {user ? user.name.charAt(0).toUpperCase() : <User size={26} strokeWidth={2} />}
-          </div>
+          <CartoonAvatar name={user ? user.name : "User"} size={56} />
           <div className="min-w-0">
             <p className="text-base font-bold text-gray-900 dark:text-white truncate">
               {user ? user.name : "User"}

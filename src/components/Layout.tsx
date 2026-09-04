@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import AddTransactionModal from "./AddTransactionModal";
 import TrackrLogo, { TrackrLogoIcon } from "./TrackrLogo";
+import CartoonAvatar from "./CartoonAvatar";
 import { useApp } from "../context/AppContext";
 
 const NAV = [
@@ -76,9 +77,7 @@ export default function Layout() {
         {/* Bottom User Profile Card */}
         <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-800/60">
           <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-gray-50 dark:bg-gray-800/40">
-            <div className="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-xs">
-              {user ? user.name.charAt(0).toUpperCase() : "U"}
-            </div>
+            <CartoonAvatar name={user ? user.name : "User"} size={36} />
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold text-gray-900 dark:text-gray-200 truncate">
                 {user ? user.name : "User"}
