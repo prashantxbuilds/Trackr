@@ -52,7 +52,6 @@
 | React Router | 8 | Navigation |
 | Recharts | 3 | Charts & Analytics |
 | Lucide React | latest | Icons |
-| Capacitor | 8 | Android App |
 
 ---
 
@@ -84,30 +83,6 @@ App will be available at `http://localhost:8443`
 npm run build
 ```
 
----
-
-## 📱 Android APK (via Capacitor)
-
-Trackr can be built as a native Android app using Capacitor.
-
-### Prerequisites
-- Android Studio installed
-- JDK 17+
-- `ANDROID_HOME` environment variable set
-
-### Build APK
-
-```bash
-# Build web assets + sync to Android
-npm run cap:sync
-
-# Open in Android Studio
-npm run cap:open
-```
-
-Then in Android Studio: **Build → Build APK(s)**
-
-Debug APK output: `android/app/build/outputs/apk/debug/app-debug.apk`
 
 ---
 
@@ -122,9 +97,7 @@ Trackr/
 │   ├── assets/         # Logo and static assets
 │   ├── utils.ts        # Helper functions (currency, date, export)
 │   └── data.ts         # Default categories and types
-├── android/            # Capacitor Android project
 ├── public/             # Static files (favicon, logo)
-├── capacitor.config.ts # Capacitor configuration
 └── vite.config.ts      # Vite configuration
 ```
 
@@ -135,10 +108,7 @@ Trackr/
 | Script | Description |
 |--------|-------------|
 | `npm run dev` | Start development server |
-| `npm run build` | Build for web production |
-| `npm run build:cap` | Build for Capacitor (relative paths) |
-| `npm run cap:sync` | Build + sync to Android |
-| `npm run cap:open` | Open Android Studio |
+| `npm run build` | Build for production |
 | `npm run preview` | Preview production build |
 
 ---
