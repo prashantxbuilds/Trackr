@@ -6,7 +6,7 @@
 
 **Smart Expense & Budget Tracker — Free, Private, No Sign-Up Required**
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20App-6366F1?style=for-the-badge&logo=vercel)](https://trackr.prashantxbuilds.dev)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20App-6366F1?style=for-the-badge&logo=vercel)](https://trackr-two-puce.vercel.app)
 [![GitHub](https://img.shields.io/badge/GitHub-prashantxbuilds-181717?style=for-the-badge&logo=github)](https://github.com/prashantxbuilds/Trackr)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)](https://react.dev)
 [![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite)](https://vitejs.dev)
