@@ -185,14 +185,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  // Restore transaction from recycle bin
+  // Restore transaction from recycle bin — insert at correct date position
   const restoreTransaction = useCallback((id: string) => {
     setDeletedTransactions((prev) => {
       const toRestore = prev.find((t) => t.id === id);
       if (toRestore) {
-        setTransactions((txs) =>
-          txs.some((t) => t.id === id) ? txs : [toRestore, ...txs]
-        );
+        setTransactions((txs) => {
+          if (txs.some((t) => t.id === id)) return txs;
+          // Insert in correct sorted position (newest date first)
+          const insertIdx = txs.findIndex((t) => t.date <= toRestore.date);
+          const updated = [...txs];
+          if (insertIdx === -1) {
+            updated.push(toRestore); // oldest — goes to end
+          } else {
+            updated.splice(insertIdx, 0, toRestore);
+          }
+          return updated;
+        });
       }
       return prev.filter((t) => t.id !== id);
     });
