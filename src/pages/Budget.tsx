@@ -2,15 +2,13 @@ import { useMemo, useState } from "react";
 import { Edit3, Check, X, AlertTriangle, CheckCircle2, TrendingDown } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { CategoryIcon } from "../components/IconMap";
-import { formatCurrency, getCurrencySymbol, currentMonth, getCurrentMonthName } from "../utils";
+import { formatCurrency, getCurrencySymbol } from "../utils";
 
 export default function Budget() {
   const { transactions, expenseCategories, updateCategoryBudget, currency } = useApp();
   const symbol = getCurrencySymbol(currency);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const month = currentMonth();
-  const monthName = getCurrentMonthName();
 
   // Calculate days elapsed and days in month for avg spend
   const { daysElapsed, daysInMonth } = useMemo(() => {
@@ -25,7 +23,7 @@ export default function Budget() {
   const catData = useMemo(() => {
     const map: Record<string, number> = {};
     transactions
-      .filter((t) => t.type === "expense" && t.date.startsWith(month))
+      .filter((t) => t.type === "expense")
       .forEach((t) => {
         map[t.category] = (map[t.category] || 0) + t.amount;
       });
@@ -35,13 +33,13 @@ export default function Budget() {
       const pct = cat.budget > 0 ? (spent / cat.budget) * 100 : 0;
       const isOver = cat.budget > 0 && spent > cat.budget;
       const remaining = cat.budget - spent;
-      // Daily avg: total spent this month / days elapsed so far
+      // Daily avg: total spent / days elapsed so far
       const dailyAvg = daysElapsed > 0 ? spent / daysElapsed : 0;
       // Projected spend: dailyAvg * total days in month
       const projected = dailyAvg * daysInMonth;
       return { ...cat, spent, pct, isOver, remaining, dailyAvg, projected };
     });
-  }, [transactions, expenseCategories, month, daysElapsed, daysInMonth]);
+  }, [transactions, expenseCategories, daysElapsed, daysInMonth]);
 
   const totalBudget = useMemo(
     () => expenseCategories.reduce((s, c) => s + c.budget, 0),
@@ -85,12 +83,9 @@ export default function Budget() {
               Targets & Limits
             </p>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-              Monthly Budgets
+              Budget Tracker
             </h1>
           </div>
-          <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 text-gray-600 dark:text-gray-300 w-fit">
-            {monthName} {new Date().getFullYear()}
-          </span>
         </div>
 
         {/* Overall Summary Card */}
@@ -193,7 +188,7 @@ export default function Budget() {
             <AlertTriangle className="text-rose-500 flex-shrink-0" size={20} />
             <div className="text-xs text-rose-800 dark:text-rose-300">
               <span className="font-bold">Budget Alert: </span>
-              {overBudgetCategories.length} {overBudgetCategories.length === 1 ? "category has" : "categories have"} exceeded their monthly spending limit ({overBudgetCategories.map((c) => c.name).join(", ")}).
+              {overBudgetCategories.length} {overBudgetCategories.length === 1 ? "category has" : "categories have"} exceeded their spending limit ({overBudgetCategories.map((c) => c.name).join(", ")}).
             </div>
           </div>
         )}
@@ -204,7 +199,7 @@ export default function Budget() {
             <h2 className="text-base font-bold text-gray-900 dark:text-white">
               Category Limits
             </h2>
-            <span className="text-xs text-gray-400">Set monthly limit</span>
+            <span className="text-xs text-gray-400">Set budget limit</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -300,7 +295,7 @@ export default function Budget() {
                     >
                       {cat.budget > 0
                         ? `Budget: ${formatCurrency(cat.budget, currency)}`
-                        : "Set monthly limit"}
+                        : "Set limit"}
                     </button>
                   </div>
 

@@ -13,7 +13,7 @@ import {
 import { useNavigate } from "react-router";
 import { useApp } from "../context/AppContext";
 import { CategoryIcon } from "../components/IconMap";
-import { formatCurrency, formatDate, currentMonth, getCurrentMonthName } from "../utils";
+import { formatCurrency, formatDate } from "../utils";
 import AddTransactionModal from "../components/AddTransactionModal";
 import TransactionDetailModal from "../components/TransactionDetailModal";
 import type { Transaction, TransactionType } from "../data";
@@ -23,19 +23,16 @@ export default function Dashboard() {
   const { transactions, getCategoryById, deleteTransaction, currency } = useApp();
   const [modalType, setModalType] = useState<TransactionType | null>(null);
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
-  const month = currentMonth();
-  const monthName = getCurrentMonthName();
 
   const { totalIncome, totalExpense, balance } = useMemo(() => {
-    const monthTx = transactions.filter((t) => t.date.startsWith(month));
-    const totalIncome = monthTx
+    const totalIncome = transactions
       .filter((t) => t.type === "income")
       .reduce((s, t) => s + t.amount, 0);
-    const totalExpense = monthTx
+    const totalExpense = transactions
       .filter((t) => t.type === "expense")
       .reduce((s, t) => s + t.amount, 0);
     return { totalIncome, totalExpense, balance: totalIncome - totalExpense };
-  }, [transactions, month]);
+  }, [transactions]);
 
   const recent = useMemo(
     () => [...transactions].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 7),
@@ -45,7 +42,7 @@ export default function Dashboard() {
   const topExpCats = useMemo(() => {
     const map: Record<string, number> = {};
     transactions
-      .filter((t) => t.type === "expense" && t.date.startsWith(month))
+      .filter((t) => t.type === "expense")
       .forEach((t) => {
         map[t.category] = (map[t.category] || 0) + t.amount;
       });
@@ -54,7 +51,7 @@ export default function Dashboard() {
       .filter((x) => x.cat)
       .sort((a, b) => b.amount - a.amount)
       .slice(0, 4);
-  }, [transactions, month, getCategoryById]);
+  }, [transactions, getCategoryById]);
 
   const savingsRate =
     totalIncome > 0
@@ -99,7 +96,7 @@ export default function Dashboard() {
               <div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs uppercase tracking-wider text-gray-300 font-semibold">
-                    {monthName} Net Balance
+                    Overall Net Balance
                   </span>
                   <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-semibold">
                     {savingsRate >= 0 ? (
@@ -150,7 +147,7 @@ export default function Dashboard() {
           <div className="rounded-3xl p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 shadow-sm flex flex-col justify-between space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-sm text-gray-900 dark:text-white">
-                Monthly Highlights
+                Quick Highlights
               </h3>
               <button
                 onClick={() => navigate("/stats")}
@@ -166,15 +163,15 @@ export default function Dashboard() {
                   Total Transactions
                 </span>
                 <span className="text-sm font-bold text-gray-900 dark:text-white">
-                  {transactions.filter((t) => t.date.startsWith(month)).length} recorded
+                  {transactions.length} recorded
                 </span>
               </div>
               <div className="p-3 rounded-2xl bg-gray-50 dark:bg-gray-800/60 flex items-center justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                  Daily Avg. Spend
+                  Avg. Transaction
                 </span>
                 <span className="text-sm font-bold text-gray-900 dark:text-white">
-                  {formatCurrency(totalExpense / Math.max(1, new Date().getDate()), currency)}
+                  {formatCurrency(transactions.length > 0 ? (totalIncome + totalExpense) / transactions.length : 0, currency)}
                 </span>
               </div>
             </div>
@@ -196,7 +193,7 @@ export default function Dashboard() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-gray-900 dark:text-white">
-                Top Spending This Month
+                Top Spending Categories
               </h2>
               <button
                 onClick={() => navigate("/stats")}
