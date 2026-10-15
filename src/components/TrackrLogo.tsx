@@ -21,66 +21,79 @@ export function TrackrLogoIcon({ size = 40, className = "" }: { size?: number; c
         className="w-full h-full"
       >
         <defs>
+          {/* Background Gradient */}
           <linearGradient id="logoBgGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
             <stop offset="0%" stopColor="#EFF6FF" />
-            <stop offset="100%" stopColor="#DBEAFE" />
+            <stop offset="50%" stopColor="#EEF2FF" />
+            <stop offset="100%" stopColor="#E0E7FF" />
           </linearGradient>
-          <linearGradient id="logoShirtGrad" x1="14" y1="47" x2="50" y2="64" gradientUnits="userSpaceOnUse">
+
+          {/* Wallet Gradient */}
+          <linearGradient id="logoWalletGrad" x1="12" y1="26" x2="52" y2="54" gradientUnits="userSpaceOnUse">
             <stop offset="0%" stopColor="#3B82F6" />
-            <stop offset="100%" stopColor="#2563EB" />
+            <stop offset="100%" stopColor="#1D4ED8" />
           </linearGradient>
-          <linearGradient id="logoSkinGrad" x1="18" y1="18" x2="46" y2="46" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#FED7AA" />
-            <stop offset="100%" stopColor="#FBBF8A" />
+
+          {/* Wallet Flap Gradient */}
+          <linearGradient id="logoFlapGrad" x1="12" y1="33" x2="52" y2="54" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#2563EB" />
+            <stop offset="100%" stopColor="#1E40AF" />
+          </linearGradient>
+
+          {/* Gold Coin Gradient */}
+          <linearGradient id="logoCoinGrad" x1="33" y1="11" x2="49" y2="27" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#FDE047" />
+            <stop offset="50%" stopColor="#F59E0B" />
+            <stop offset="100%" stopColor="#D97706" />
+          </linearGradient>
+
+          {/* Growth Arrow / Card Gradient */}
+          <linearGradient id="logoChartGrad" x1="16" y1="13" x2="32" y2="30" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#34D399" />
+            <stop offset="100%" stopColor="#059669" />
           </linearGradient>
         </defs>
 
-        {/* Squircle rounded background */}
+        {/* App Icon Squircle Background */}
         <rect width="64" height="64" rx="16" fill="url(#logoBgGrad)" />
-        <rect width="64" height="64" rx="16" stroke="#BFDBFE" strokeWidth="1" />
+        <rect width="64" height="64" rx="16" stroke="#C7D2FE" strokeWidth="1.2" />
 
-        {/* Body / Shirt */}
-        <path d="M14 64 Q14 50 22 47 L32 50 L42 47 Q50 50 50 64 Z" fill="url(#logoShirtGrad)" />
+        {/* Background Growth Chart Bars (Rising Tracker Bars) */}
+        <rect x="17" y="24" width="4" height="10" rx="2" fill="#93C5FD" opacity="0.8" />
+        <rect x="23" y="19" width="4" height="15" rx="2" fill="#60A5FA" opacity="0.9" />
+        <rect x="29" y="14" width="4" height="20" rx="2" fill="url(#logoChartGrad)" />
 
-        {/* Collar */}
-        <path d="M28 47 L32 52 L36 47 L32 49 Z" fill="#FFFFFF" opacity="0.95" />
+        {/* Upward Trend Trendline Arrow */}
+        <path d="M18 22 L25 17 L31 12" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M28 11.5 L32 11.5 L32 15.5" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
 
-        {/* Neck */}
-        <rect x="28" y="41" width="8" height="8" rx="2" fill="#FBBF8A" />
+        {/* Cartoon Shiny Gold Coin */}
+        <circle cx="43" cy="20" r="9" fill="url(#logoCoinGrad)" />
+        <circle cx="43" cy="20" r="7.2" fill="none" stroke="#FEF08A" strokeWidth="1" opacity="0.8" />
+        {/* Coin Center Star Symbol */}
+        <path d="M43 16.5 L44.2 19 L46.8 19.4 L44.9 21.2 L45.4 23.8 L43 22.5 L40.6 23.8 L41.1 21.2 L39.2 19.4 L41.8 19 Z" fill="#FFFFFF" opacity="0.9" />
+        {/* Coin Glossy Sparkle */}
+        <circle cx="39.5" cy="16.5" r="1.3" fill="#FFFFFF" />
 
-        {/* Head */}
-        <ellipse cx="32" cy="32" rx="14" ry="14" fill="url(#logoSkinGrad)" />
+        {/* Front Cute Cartoon Wallet */}
+        <rect x="11" y="29" width="42" height="25" rx="7" fill="url(#logoWalletGrad)" />
+        <rect x="13" y="31" width="38" height="21" rx="5" fill="none" stroke="#60A5FA" strokeWidth="0.8" strokeDasharray="2 1.5" opacity="0.6" />
 
-        {/* Hair */}
-        <path d="M18 28 Q18 16 32 16 Q46 16 46 28 Q46 20 42 18 Q36 14 28 15 Q20 16 18 28Z" fill="#1C1917" />
-        <rect x="18" y="24" width="3" height="8" rx="1.5" fill="#1C1917" />
-        <rect x="43" y="24" width="3" height="8" rx="1.5" fill="#1C1917" />
+        {/* Front Pocket Cut */}
+        <path d="M11 37 C20 40 44 35 53 38 L53 47 C53 50.8 49.8 54 46 54 L18 54 C14.2 54 11 50.8 11 47 Z" fill="url(#logoFlapGrad)" />
 
-        {/* Ears */}
-        <ellipse cx="18" cy="32" rx="2.5" ry="3" fill="#F6A96C" />
-        <ellipse cx="46" cy="32" rx="2.5" ry="3" fill="#F6A96C" />
+        {/* Wallet Fastener Clasp */}
+        <rect x="36" y="38" width="16" height="9" rx="4.5" fill="#1E3A8A" />
+        <circle cx="48" cy="42.5" r="3" fill="#FBBF24" />
+        <circle cx="48" cy="42.5" r="1.8" fill="#F59E0B" />
+        <circle cx="47.3" cy="41.8" r="0.8" fill="#FFFFFF" />
 
-        {/* Eyebrows */}
-        <path d="M23 25 Q26 23 29 25" stroke="#1C1917" strokeWidth="1.8" strokeLinecap="round" fill="none" />
-        <path d="M35 25 Q38 23 41 25" stroke="#1C1917" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+        {/* Cute Highlight Reflection on Wallet Corner */}
+        <path d="M15 31.5 C13 31.5 12.5 33 12.5 35" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
 
-        {/* Eyes */}
-        <ellipse cx="26" cy="29" rx="3.2" ry="3.2" fill="#FFFFFF" />
-        <ellipse cx="38" cy="29" rx="3.2" ry="3.2" fill="#FFFFFF" />
-        <circle cx="27" cy="29.5" r="2" fill="#1C1917" />
-        <circle cx="39" cy="29.5" r="2" fill="#1C1917" />
-        <circle cx="27.8" cy="28.5" r="0.75" fill="#FFFFFF" />
-        <circle cx="39.8" cy="28.5" r="0.75" fill="#FFFFFF" />
-
-        {/* Nose */}
-        <path d="M31 33 Q32 35.5 33 33" stroke="#E8956A" strokeWidth="1.4" strokeLinecap="round" fill="none" />
-
-        {/* Cheerful Smile */}
-        <path d="M26 37 Q32 42 38 37" stroke="#C2714E" strokeWidth="1.8" strokeLinecap="round" fill="none" />
-
-        {/* Cheek blush */}
-        <ellipse cx="21" cy="36" rx="3" ry="2" fill="#FCA5A5" opacity="0.6" />
-        <ellipse cx="43" cy="36" rx="3" ry="2" fill="#FCA5A5" opacity="0.6" />
+        {/* Cute Magic Tracker Sparkles */}
+        <path d="M11 17 C11 19 10 20 10 20 C10 20 11 21 11 23 C11 21 12 20 12 20 C12 20 11 19 11 17 Z" fill="#6366F1" />
+        <circle cx="53" cy="13" r="1.2" fill="#F59E0B" />
       </svg>
     </div>
   );
