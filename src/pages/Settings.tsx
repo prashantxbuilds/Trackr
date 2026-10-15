@@ -9,7 +9,6 @@ import {
   X,
   Check,
   Trash2,
-  Trash,
   Plus,
   RotateCcw,
   CheckCircle2,
@@ -534,25 +533,28 @@ export default function Settings() {
 
         {/* Recycle Bin */}
         <div className="space-y-2">
-          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 px-1">
-            Recycle Bin
-          </p>
+          <div className="flex items-center gap-1.5 px-1">
+            <Trash2 size={13} className="text-amber-500" />
+            <p className="text-xs font-bold uppercase tracking-wider text-gray-400">
+              Recycle Bin
+            </p>
+          </div>
           <div className="rounded-3xl bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 shadow-sm">
             <div className="p-4 sm:p-5">
               <button
                 onClick={() => setOpenSection(openSection === "trash" ? null : "trash")}
-                className="flex items-center justify-between w-full text-left"
+                className="flex items-center justify-between w-full text-left cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
-                    <Trash size={18} />
+                    <Trash2 size={18} />
                   </div>
                   <div>
                     <p className="text-sm font-bold text-gray-900 dark:text-white">
-                      Deleted Transactions
+                      Recycle Bin
                     </p>
                     <p className="text-xs text-gray-400">
-                      {deletedTransactions.length} item{deletedTransactions.length !== 1 ? "s" : ""} in trash
+                      {deletedTransactions.length} item{deletedTransactions.length !== 1 ? "s" : ""} in trash (restore anytime)
                     </p>
                   </div>
                 </div>
@@ -623,7 +625,7 @@ export default function Settings() {
                     </>
                   ) : (
                     <div className="flex flex-col items-center justify-center py-8 text-gray-400">
-                      <Trash size={28} className="mb-2 opacity-40" />
+                      <Trash2 size={28} className="mb-2 opacity-40" />
                       <p className="text-xs font-medium">Recycle bin is empty</p>
                     </div>
                   )}

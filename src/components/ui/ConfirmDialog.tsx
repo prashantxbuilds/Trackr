@@ -1,5 +1,5 @@
 import React from "react";
-import { AlertTriangle, X, Check } from "lucide-react";
+import { AlertTriangle, Trash2, X, Check } from "lucide-react";
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -41,7 +41,7 @@ export function ConfirmDialog({
                 : "bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400"
             }`}
           >
-            <AlertTriangle size={20} />
+            {isDestructive ? <Trash2 size={20} /> : <AlertTriangle size={20} />}
           </div>
           <div className="min-w-0 flex-1">
             <h3 className="text-base font-bold text-gray-900 dark:text-white truncate">

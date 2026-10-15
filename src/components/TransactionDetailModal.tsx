@@ -12,6 +12,7 @@ import {
   ArrowUpRight,
   ArrowDownLeft,
   Sparkles,
+  X,
 } from "lucide-react";
 import type { Transaction } from "../data";
 import { useApp } from "../context/AppContext";
@@ -86,11 +87,26 @@ export default function TransactionDetailModal({ transaction, onClose }: Props) 
         onClick={onClose}
       >
         <div
-          className="bg-white dark:bg-gray-900 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-800 animate-in zoom-in-95 duration-200"
+          className="bg-white dark:bg-gray-900 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-800 animate-in zoom-in-95 duration-200 relative"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Top Header with Prominent Cross Close Button */}
+          {/* Top Header with Prominent Cross Close Button and Recycle Bin Delete Button */}
           <div className="relative pt-6 pb-5 px-6 text-center border-b border-gray-100 dark:border-gray-800 bg-gradient-to-b from-gray-50/90 dark:from-gray-800/40 to-transparent">
+            {/* Top action buttons */}
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              title="Move to Recycle Bin"
+              className="absolute top-4 left-4 p-2 rounded-xl text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+            >
+              <Trash2 size={18} />
+            </button>
+            <button
+              onClick={onClose}
+              title="Close modal"
+              className="absolute top-4 right-4 p-2 rounded-xl text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+            >
+              <X size={18} />
+            </button>
 
             {/* Status Icon */}
             <div className="mx-auto mb-3 relative flex items-center justify-center">

@@ -6,6 +6,7 @@ import {
   Wallet,
   Clock,
   Settings as SettingsIcon,
+  Trash2,
   Plus,
   Moon,
   Sun,
@@ -26,7 +27,7 @@ const NAV = [
 export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { darkMode, setDarkMode, user } = useApp();
+  const { darkMode, setDarkMode, user, deletedTransactions } = useApp();
   const [showAdd, setShowAdd] = useState(false);
 
   return (
@@ -72,6 +73,27 @@ export default function Layout() {
               </button>
             );
           })}
+
+          {/* Recycle Bin Navigation Item */}
+          <button
+            onClick={() => navigate("/settings")}
+            className="w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-sm font-medium transition-colors duration-150 text-left cursor-pointer !transform-none select-none text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-gray-200"
+            title="Recycle Bin (Deleted Transactions)"
+          >
+            <div className="flex items-center gap-3.5">
+              <Trash2
+                size={19}
+                strokeWidth={1.8}
+                className="text-gray-400 dark:text-gray-400"
+              />
+              <span>Recycle Bin</span>
+            </div>
+            {deletedTransactions.length > 0 && (
+              <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400">
+                {deletedTransactions.length}
+              </span>
+            )}
+          </button>
         </nav>
 
         {/* Bottom User Profile Card */}
