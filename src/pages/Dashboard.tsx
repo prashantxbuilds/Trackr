@@ -20,7 +20,7 @@ import type { Transaction, TransactionType } from "../data";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { transactions, deletedTransactions, getCategoryById, deleteTransaction, currency } = useApp();
+  const { transactions, getCategoryById, deleteTransaction, currency } = useApp();
   const [modalType, setModalType] = useState<TransactionType | null>(null);
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
 
@@ -235,25 +235,13 @@ export default function Dashboard() {
                 Recent Transactions
               </h2>
             </div>
-            <div className="flex items-center gap-2">
-              {deletedTransactions.length > 0 && (
-                <button
-                  onClick={() => navigate("/settings")}
-                  className="text-xs font-semibold text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-950/60 flex items-center gap-1.5 cursor-pointer bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-xl border border-amber-200/60 dark:border-amber-800/40 transition-colors"
-                  title="View Recycle Bin"
-                >
-                  <Trash2 size={13} />
-                  <span>Recycle Bin ({deletedTransactions.length})</span>
-                </button>
-              )}
-              <button
-                onClick={() => navigate("/history")}
-                className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                <Clock size={13} />
-                <span>Full History</span>
-              </button>
-            </div>
+            <button
+              onClick={() => navigate("/history")}
+              className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              <Clock size={13} />
+              <span>Full History</span>
+            </button>
           </div>
 
           <div className="space-y-2.5">

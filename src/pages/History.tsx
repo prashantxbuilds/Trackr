@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router";
 import { Search, X, Trash2, ArrowDownLeft, ArrowUpRight } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { CategoryIcon } from "../components/IconMap";
@@ -9,10 +8,8 @@ import TransactionDetailModal from "../components/TransactionDetailModal";
 import type { Transaction } from "../data";
 
 export default function History() {
-  const navigate = useNavigate();
   const {
     transactions,
-    deletedTransactions,
     deleteTransaction,
     getCategoryById,
     currency,
@@ -77,16 +74,6 @@ export default function History() {
               <ArrowUpRight size={13} />
               <span>-{formatCurrency(filteredExpense, currency)}</span>
             </div>
-            {deletedTransactions.length > 0 && (
-              <button
-                onClick={() => navigate("/settings")}
-                className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors cursor-pointer"
-                title="View Recycle Bin"
-              >
-                <Trash2 size={13} />
-                <span>Bin ({deletedTransactions.length})</span>
-              </button>
-            )}
           </div>
         </div>
 
